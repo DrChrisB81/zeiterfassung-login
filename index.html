@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login zur Zeiterfassung</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f9;
+            margin: 0;
+        }
+        .container {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            width: 320px;
+            text-align: center;
+        }
+        h2 {
+            color: #333333;
+        }
+        input, button {
+            width: 90%;
+            padding: 10px;
+            margin-top: 8px;
+            margin-bottom: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .fehlermeldung {
+            color: red;
+            margin-top: 10px;
+        }
+        .link {
+            color: #007bff;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+        .logo {
+            width: 100px;
+            margin-bottom: 20px;
+        }
+    </style>
+    <script>
+        const apiUrl = 'https://cloud.seatable.io/api/v2/base/d580ec64-9132-4a30-b715-ca41bbf424f7/app/app-id/tables/Mitarbeiter-DCA/rows';
+        const apiKey = '46ded8faca5bc3ef231bbf0067bc94c867a3d769';
+
+        async function loginPruefen() {
+            let mitarbeiterID = document.getElementById("mitarbeiterID").value;
+            let passwort = document.getElementById("passwort").value;
+            let fehlermeldung = document.getElementById("fehlermeldung");
+
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Token ${apiKey}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Serverantwort: ${response.status} - ${response.statusText}`);
+                }
+
+                const data = await response.json();
+                const mitarbeiter = data.rows.find(row => row.ID === mitarbeiterID);
+
+                if (mitarbeiter && mitarbeiter.Passwort === passwort) {
+                    window.location.href = `https://drchrisb81.github.io/zeiterfassung-login/login.html?id=${mitarbeiterID}`;
+                } else {
+                    fehlermeldung.innerText = "Falsche ID oder falsches Passwort!";
+                }
+            } catch (error) {
+                fehlermeldung.innerText = `Fehler beim Verbinden mit der Datenbank: ${error.message}`;
+                console.error('Fehlerdetails:', error);
+            }
+        }
+
+        async function passwortVergessen() {
+            let email = prompt("Bitte geben Sie Ihre E-Mail-Adresse ein:");
+
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Token ${apiKey}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Serverantwort: ${response.status} - ${response.statusText}`);
+                }
+
+                const data = await response.json();
+                const mitarbeiter = data.rows.find(row => row.Email === email);
+
+                if (mitarbeiter) {
+                    alert(`Ihr Passwort lautet: ${mitarbeiter.Passwort}`);
+                } else {
+                    alert("E-Mail-Adresse nicht gefunden!");
+                }
+            } catch (error) {
+                alert(`Fehler beim Verbinden mit der Datenbank: ${error.message}`);
+                console.error('Fehlerdetails:', error);
+            }
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <img src="https://via.placeholder.com/100" alt="Firmenlogo" class="logo">
+        <h2>Login zur Zeiterfassung</h2>
+        <p>Bitte geben Sie Ihre Mitarbeiter-ID und Ihr Passwort ein, um Ihre Arbeitszeiten zu erfassen.</p>
+        <input type="text" id="mitarbeiterID" placeholder="Mitarbeiter-ID" required>
+        <input type="password" id="passwort" placeholder="Passwort" required>
+        <button onclick="loginPruefen()">Login</button>
+        <p class="link" onclick="passwortVergessen()">Passwort vergessen?</p>
+        <p id="fehlermeldung" class="fehlermeldung"></p>
+    </div>
+</body>
+</html>
