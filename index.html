@@ -60,7 +60,7 @@
         }
     </style>
     <script>
-        const apiUrl = 'https://seatable.itvstudios.de/api/v2/base/d580ec64-9132-4a30-b715-ca41bbf424f7/tables/Mitarbeiter-DCA/rows';
+        const apiUrl = 'https://seatable.itvstudios.de/api/v2/base/d580ec64-9132-4a30-b715-ca41bbf424f7/tables/Mitarbeiter_Base/rows';
         const apiKey = '46ded8faca5bc3ef231bbf0067bc94c867a3d769';
 
         async function loginPruefen() {
@@ -82,9 +82,9 @@
                 }
 
                 const data = await response.json();
-                const mitarbeiter = data.rows.find(row => row.ID === mitarbeiterID);
+                const mitarbeiter = data.rows.find(row => row['Mitarbeiter-ID'] === mitarbeiterID);
 
-                if (mitarbeiter && mitarbeiter.Passwort === passwort) {
+                if (mitarbeiter && mitarbeiter['Passwort Seatable'] === passwort) {
                     window.location.href = `https://drchrisb81.github.io/zeiterfassung-login/login.html?id=${mitarbeiterID}`;
                 } else {
                     fehlermeldung.innerText = "Falsche ID oder falsches Passwort!";
@@ -112,10 +112,10 @@
                 }
 
                 const data = await response.json();
-                const mitarbeiter = data.rows.find(row => row.Email === email);
+                const mitarbeiter = data.rows.find(row => row['E-Mail'] === email);
 
                 if (mitarbeiter) {
-                    alert(`Ihr Passwort lautet: ${mitarbeiter.Passwort}`);
+                    alert(`Ihr Passwort lautet: ${mitarbeiter['Passwort Seatable']}`);
                 } else {
                     alert("E-Mail-Adresse nicht gefunden!");
                 }
@@ -139,3 +139,4 @@
     </div>
 </body>
 </html>
+
